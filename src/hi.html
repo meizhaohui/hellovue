@@ -1,0 +1,572 @@
+<html>
+<head>
+    <meta charset="utf-8">
+    <script src="./js/vue.js"></script>
+    <!--AJAX异步库 lodash可以减少Vue Watch鉴定axios后台请求的压力， 用于app11 -->
+    <script src="./js/axios.js"></script>
+    <script src="./js/lodash.js"></script>
+</head>
+<body>
+<div id="app1">
+    <h3>app1 {{}}数据绑定</h3>
+    {{ message }}  <!-- {{}} 用于输出对象属性和函数返回值 -->
+</div>
+
+<div id="app2">
+    <h3>app2 v-bind绑定html属性</h3>
+    <!--使用v-bind指令绑定html属性值，将元素节点的title特性与Vue实例的message属性保持一致-->
+    <span v-bind:title="message">鼠标悬停几秒钟查看此处动态绑定的提示信息！</span><br>
+    <!--v-bind:的缩写为:,因此:title等同于v-bind:title-->
+    <span :title="message">鼠标悬停几秒钟查看此处动态绑定的提示信息！</span><br>
+    <!--如果isbuttondisabled的值是null/undefined/false时，disabled特性不会被包含在渲染出来的button元素中-->
+    <button v-bind:disabled="isbuttondisabled" @click="info">You can't click me</button>
+</div>
+
+<div id="app3">
+    <h3>app3 v-if条件判断</h3>
+    <!--使用v-if指令进行条件判断-->
+    <p v-if="seen">现在你看到我了</p>
+    <!--使用v-on:click事件监听指令绑定点击事件-->
+    <button v-on:click="showme">点击我</button>
+</div>
+
+<div id="app4">
+    <h3>app4 v-for循环迭代</h3>
+    <ol>
+        <!--使用v-for指令绑定数组的数据，进行循环迭代-->
+        <!--第一个参数是对象的值，第二个参数是键名，第三个参数是索引值，从0开始-->
+        <!--在浏览器控制台可以使用app4.items.push({lang:'C++'}) 添加一个新项目-->
+        <!--遍历数组-->
+        <!--数组可以表现出堆栈和队列一样的操作，-->
+        <!--堆栈LIFO(Last-In-First-Out)后进先出-->
+        <!--在栈的顶部进行操作，push()推入，pop()弹出-->
+        <!--队列FIFO(First-In-First-Out)先进先出，-->
+        <!--在队列的末端添加，在队列的前端移除，-->
+        <!--shift()移除队列前端第一个项，unshift()在队列的前端插入项。-->
+
+        <!--splice(index,len,[item])可实现对数组的增加、删除、替换等操作,
+            index数组开始下标，len替换/删除的长度，item替换的值，删除操作时item为空
+            var list=['a','b','c','d'];
+            list.splice(0,1);  // 删除起始下标为0，长度为1的值，即删除"a"
+            console.log(list); // ["b","c","d"]
+            list.splice(1,2);  // 删除起始下标为1，长度为2的值，即删除"c"和"d"
+            console.log(list); // ["b"]
+
+            list.splice(0,1,'a');  // 替换起始下标为0，长度为1的值为“a”,即将"b"替换成"a"
+            console.log(list); // ["a"]
+
+            list.splice(1,0,'b'); // 在起始下标为1，长度为0处增加一个值"b"
+            console.log(list); // ["a","b"]
+            list.splice(4,0,'c'); // 在起始下标为4，长度为0处增加一个值"c",虽然指定起始下标为4，但list实际长度为2，因此会在数组最后添加数据
+            console.log(list); // ["a","b","c"]
+         -->
+
+        <!--sort() 对列表排序-->
+        <!--reverse() 对列表前后进行黝黑-->
+
+
+        <li v-for="item in items">
+            {{ item.message }}
+        </li>
+        <!--遍历对象-->
+        <li v-for="value in object">
+            {{ value }}
+        </li>
+        <li v-for="(value,key) in object">
+            {{ key }} : {{ value }}
+        </li>
+        <li v-for="(value,key,index) in object">
+            {{ index }}.{{ key }} : {{ value }}
+        </li>
+    </ol>
+</div>
+
+<div id="app5">
+    <h3>app5 v-on事件监听</h3>
+    <p>{{ message }}</p>
+    <!--调用computed计算属性获取转置后的值-->
+    <!-- 计算属性是基于它们的响应式依赖进行缓存的，只有在相关响应式依赖发生改变时它们才会重新求值。
+         这意味着只要message没有发生改变，多次访问computed_reverse_message计算属性会立即返回之前的计算结果，
+         而不会再次执行函数。
+
+         当需要做大量的数据计算时，使用缓存可以加快计算速度！！！
+     -->
+    <p>{{ computed_reverse_message }}</p> <!-- 通过cosole.log可知，仅第一次调用计算属性时，会打印日志：computed called：1 -->
+    <p>{{ computed_reverse_message }}</p>  <!-- 用上面缓存的值，不调用computed_reverse_message方法 -->
+    <p>{{ computed_reverse_message }}</p>
+    <p>{{ computed_reverse_message }}</p>
+    <!-- 相比之下，每当触发重新渲染时，调用方法将总会再次执行函数。-->
+    <!--@click是v-on:click的简写，监听点击事件,reverse_message函数与reverse_message()函数效果一样-->
+    <!-- 当点击按钮时，message值会发生变化，计算属性的方法和methods中的函数都会调用，此时打印日志为：
+        methods called：1
+        computed called：2
+    -->
+    <button v-on:click="reverse_message()">逆转消息</button>  <!-- 调用methods中的方法来改变message的值-->
+    <button @click="reverse_message()">逆转消息</button>
+
+</div>
+
+
+<div id="app6">
+    <h3>app6 v-model双向绑定</h3>
+    <p>{{ message }}</p>
+    <!--v-model指令实现双向绑定-->
+    <input v-model="message">
+</div>
+
+<div id="app7">
+    <h3>app7 Vue component组件</h3>
+    <ol>
+        <!--创建一个todo-item0组件的实例，可以看到每个待办事项会渲染相同的文本-->
+        <todo-item0></todo-item0>
+        <todo-item0></todo-item0>
+        <todo-item0></todo-item0>
+        <!--使用v-for循环迭代todolist中的数据，使用v-bind绑定item到todo对象上，这样每个待办事项都不一样-->
+        <todo-item1 v-for="item in todolist" v-bind:todo="item" v-bind:key="item.id"></todo-item1>
+    </ol>
+</div>
+
+<div id="app8">
+    <h3>app8 v-once 使插值内容不变</h3>
+    <p>{{ message }}</p>
+    <!--使用v-once指令执行一次性插值，当数据改变时，插值处的内容不会更新-->
+    <p v-once>{{ message }}</p>
+    <input v-model="message">
+</div>
+
+<div id="app9">
+    <h3>app9 使用v-html 输出html元素</h3>
+    <!--双大括号会将数据解释为普通文本，而非HTML代码。为了输出真正的HTML，需要使用v-html指令。-->
+    <p>使用mustache语法: {{ rawHtml }}</p>
+    <p>使用v-html指令: <span v-html="rawHtml"></span></p>
+</div>
+
+<div id="app10">
+    <h3>app10 computed计算属性与watch侦听属性对比</h3>
+    <p>{{ fullName }}</p>
+    <input v-model="firstName" placeholder="firstName">
+    <input v-model="lastName" placeholder="lastName">
+</div>
+
+<div id="app11">
+    <h3>app11 使用watch自定义侦听器，使用axios进行异步请求</h3>
+    <!--当需要在数据变化时执行异步或开销较大的操作时，这个方式是最有用的。-->
+    <p>
+        Ask a yes/no question:
+        <input v-model="question">
+    </p>
+    <p>Answer: {{ answer }}</p>
+</div>
+
+<div id="app12">
+    <h3>app12 v-bind:class样式绑定和v-bind:style内联样式</h3>
+    <h4>对象语法</h4>
+    <!--由于isActive值为true，是truthiness，hasError值为false，所以只渲染static active样式， 显示一个绿色的div块-->
+    <div class="static" v-bind:class="{active: isActive, 'text-danger': hasError}"></div>
+    <!--由于isActive值为true，是truthiness，!hasError值为true，所以渲染static active text-danger样式
+      text-danger类背景颜色会覆盖active类的背景色，显示一个红色的div块-->
+    <div class="static" v-bind:class="{active: isActive, 'text-danger': !hasError}"></div>
+    <!--绑定的数据对象不必内联定义在模板里，也可以直接绑定数据里的一个对象-->
+    <div class="static" v-bind:class="classObject"></div>
+    <!--也可以绑定一个返回对象的计算属性，这是一个常用且强大的模式-->
+    <div class="static" v-bind:class="classComputedObject"></div>
+
+    <h4>数组语法</h4>
+    <!--将数组传入给v-bind:class-->
+    <div class="static" v-bind:class="[activeClass, errorClass]"></div>
+    <!--使用三元表达式, 始终添加errorClass类，当isActive为truthy时才添加activeClass类 -->
+    <div class="static" v-bind:class="[isActive ? activeClass : '', errorClass]"></div>
+    <!--当有多个条件class时，可以在数组语法中使用对象语法-->
+    <div class="static" v-bind:class="[{ active: isActive }, !errorClass]"></div>
+
+    <h4>内联样式</h4>
+    <div class="static" v-bind:style="{ color: activeColor, fontSize: fontSize + 'px' }">内联样式设置字体颜色和大小</div>
+    <!--绑定样式对象-->
+    <div class="static" v-bind:style="styleObject">内联样式设置字体颜色和大小</div>
+    <!--数组语法绑定多个样式-->
+    <div class="static" v-bind:style="[ styleObject, overridingStyle ]">内联样式设置字体颜色和大小</div>
+</div>
+
+<div id="app13">
+    <h3>app13 v-if v-else指令在&lt;template&gt;元素中渲染分；v-show的使用</h3>
+    <h3>&lt;template&gt;元素可以当做一个不可见的包裹元素，
+        在&lt;template&gt;元素上面使用v-if,最终渲染结果将不包含&lt;template&gt;元素</h3>
+    <!--HTML <template> 元素是一种用于保护客户端内容的机制，该内容在页面加载时不被渲染，但可以在运行时使用JavaScript进行实例化。-->
+    <!--可以将一个模板视为正在被存储以供随后在文档中使用的一个内容片段。-->
+    <template v-if="loginType === 'username'">
+        <label>Username</label>
+        <input placeholder="Enter your username" key="username-input">
+    </template>
+    <template v-else="">
+        <label>Email</label>
+        <input placeholder="Enter your email address" key="email-input">
+    </template>
+    <!--切换登陆方式-->
+    <button v-on:click="toggleLoginType">Toggle Login Type</button>
+
+    <p>v-show的使用</p>
+    <!-- v-show不管条件是true还是false，元素总会渲染，当是false时会增加style="display: none;"样式，即仅基于CSS进行切换-->
+    <!-- v-if是惰性的，当初始条件为假时，什么也不做，不会渲染元素。-->
+    <!-- v-if有更高的切换开销，v-show有更高的初始渲染开销。-->
+    <!-- 如果要频繁的切换，使用v-show较好；如果在运行时条件很少改变，则使用v-if较好。-->
+    <p v-show="show">Show Me</p>
+    <button @click="showcontent">Click to show me</button>
+</div>
+
+<div id="app14">
+    <h3>app14 在vm中对数组进行filter过滤</h3>
+    <li v-for="n in evenNumbers">{{ n }}</li>
+</div>
+
+<div id="app15">
+    <h3>app15 在组件中使用v-for指令</h3>
+    <!--v-on:submit.prevent 表示提交事件不再重载页面-->
+    <form v-on:submit.prevent="addNewTodo">
+        <label for="new-todo">Add a todo</label>
+        <input v-model="newTodoText" id="new-todo" placeholder="E.g. Read Books">
+        <button>Add</button>
+    </form>
+    <ul>
+        <!--注意下方的is="todo-ltem"属性，这种做法非常必要，因为在<ul>中只有<li>元素被看做有效内容，这样做实现与<todo-item>相同的效果。-->
+        <li is="todo-item"
+            v-for="(todo,index) in todos"
+            v-bind:key="todo.id"
+            v-bind:title="todo.title"
+            v-on:remove="todos.splice(index,1)"
+        > <!-- 指定remove事件，移除当前元素 -->
+        </li>
+    </ul>
+</div>
+
+
+<br>
+<br>
+<br>
+<br>
+<style>
+    .active {
+        width: 30px;
+        height: 30px;
+        margin: 10px;
+        background: green;
+    }
+    .text-danger {
+        background: red;
+    }
+
+</style>
+
+<script>
+    // 每个Vue应用都是通过用 `Vue` 函数创建一个新的 Vue 实例开始的。
+    // 所有的Vue组件都是Vue实例，并且接受相同的选项对象。
+    // 当一个Vue实例被创建时，它将data对象中的所有的属性加入到Vue的响应式系统中。
+    // 当这些属性的值发生改变时，视图将会产生“响应”，即匹配更新为新的值。
+    // 每个Vue实例在被创建时都要经过一系列的初始化过程，在这个过程中也会运行一些叫做生命周期钩子的函数
+    // 生命周期钩子函数给了用户在不同阶段添加自己的代码的机会。
+    var app1 = new Vue({
+        el: '#app1',
+        data: {
+            message: 'Hello Vue.js!'
+        }
+    });
+
+    var app2 = new Vue({
+        el: '#app2',
+        data: {
+            isbuttondisabled: true,
+            message: '页面加载于 ' + new Date().toLocaleString(),
+        },
+        methods: {
+            info: function () {
+                alert('You clicked me!')
+            }
+        }
+    });
+
+    var app3 = new Vue({
+        el: '#app3',
+        data: {
+            seen: false
+        },
+        // methods中定义对象的方法
+        methods: {
+            showme: function () {
+                if (this.seen)
+                    this.seen = false;
+                else
+                    this.seen = true;
+            }
+        }
+    });
+
+    var app4 = new Vue({
+        el: '#app4',
+        data: {
+            items: [
+                {message: 'Hello'},
+                {message: 'Vue'},
+                {message: 'JavaScript'},
+            ],
+            object: {
+                name: 'Vue',
+                url: 'https://cn.vue.org/',
+                slogan: '渐进式JavaScript框架，易学，灵活，高效',
+            }
+        }
+    });
+
+    var app5 = new Vue({
+        el: '#app5',
+        data: {
+            message: 'Hello,Vue.js!',
+            num_methods: 0,  // 用于统计reverse_message()方法被调用的次数
+            num_computed: 0,  // 用于统计computed_reverse_message()方法被调用的次数
+        },
+        methods: {
+            // 转置message的值
+            reverse_message: function () {
+                this.num_methods ++;
+                console.log('methods called：' + this.num_methods);
+
+                // `this` 在方法中指当前Vue实例，也就是app5
+                // split('')先进行拆分，reverse()进行转置，join('')再进行组合
+                this.message = this.message.split('').reverse().join('');
+                return this.num_methods
+            }
+        },
+        computed: {
+            // 转置message的值
+            computed_reverse_message: function () {
+                // `this` 在方法中指当前Vue实例，也就是app5
+                // split('')先进行拆分，reverse()进行转置，join('')再进行组合
+                this.num_computed ++;
+                console.log('computed called：'+ this.num_computed);
+
+                return this.message.split('').reverse().join('')
+            }
+        }
+    });
+
+    var app6 = new Vue({
+        el: '#app6',
+        data: {
+            message: 'Hello Vue'
+        }
+    });
+
+    // 定义组件
+    Vue.component('todo-item0', {
+        template: '<li>这是待办事项</li>'
+    });
+
+    // 定义组件
+    Vue.component('todo-item1', {
+        // todo-item1组件实现接收一个 `prop`, 类似于一个自定义特性，这个prop名为todo
+        props: ['todo'],
+        template: '<li>{{ todo.text }}</li>'
+    });
+
+    //  注意，必须创建app7的实例，todo-item组件才能正常使用
+    var app7 = new Vue({
+        el: '#app7',
+        data: {
+            todolist: [
+                { id:1, text: '9:00 学习Vue'},
+                { id:2, text: '14:00 学习Python'},
+                { id:3, text: '16:00 学习C'},
+            ]
+        }
+    });
+
+    var app8 = new Vue({
+        el: '#app8',
+        data: {
+            message:"You can't change me"
+        }
+    });
+
+    var app9 = new Vue({
+        el: '#app9',
+        data: {
+            rawHtml:'<span style="color: red">This should be red.</span>'
+        }
+    });
+
+    var app10 = new Vue({
+        el: '#app10',
+        data: {
+            firstName: 'Evan',
+            lastName: 'You',
+            // fullName: 'Evan You', // 尤雨溪,Vue.js框架的作者
+        },
+        // 使用watch监听，可以发现代码是命令式的且重复的
+        // watch: {
+        //     firstName: function (val) {
+        //         this.fullName = val + ' ' + this.lastName
+        //     },
+        //      lastName: function (val) {
+        //         this.fullName = this.firstName + ' ' + val
+        //     },
+        // },
+
+        // 使用computed计算属性的方式获取fullName代码更简洁，也不需要提前定义fullName
+        computed: {
+            fullName: function () {
+                return this.firstName + ' ' + this.lastName
+            }
+        }
+    });
+
+    var app11 = new Vue({
+        el: '#app11',
+        data: {
+            question: '',
+            answer: 'I cannot give you an answer until you ask a question!'
+        },
+        // watch监听器允许我们执行异步操作(axios异步调用)，限制我们执行该操作的频率(_.debounce()防抖动函数)，
+        // 并在我们得到最终结果前，设置中间状态(this.answer = 'Thinking'),这些都是计算属性无法做到的。
+        watch: {
+            // 监听，如果question 值发生变化，这个函数就会运行
+            question: function(new_question, old_question) {
+                this.answer = 'Waiting for you to stop typing ...';
+                this.debounced_get_answer()
+            }
+        },
+        created: function () {
+             // _.debounce(this.get_anser, 500) 通过lodash限制操作频率的防抖动函数，用户停止输入后，延迟500毫秒后调用函数
+            this.debounced_get_answer = _.debounce(this.get_answer, 500)
+        },
+        methods: {
+            get_answer: function () {
+                // 判断用户输入是否包含?问号
+                if (this.question.indexOf('?') === -1) {
+                    this.answer = 'Question usually contaion a question mark. ?';
+                    return  // 此处的return不能省略，否则的话，输入中无问号时仍然会调用API
+                }
+                this.answer = 'Thinking';  // 设置中间状态
+                var vm = this;
+                // 异步访问API链接
+                axios.get('https://yesno.wtf/api')
+                    .then(function(response) {
+                        // _.capitalize([string='']) 转换字符串string首字母为大写，剩下为小写
+                        vm.answer = _.capitalize(response.data.answer)
+                    })
+                    // 当无法访问API链接或访问异常时会执行catch中的函数
+                    .catch(function(error){
+                        vm.answer = 'Error! Could not reach the API. ' + error
+                    })
+            }
+        }
+    });
+
+    var app12 = new Vue({
+        el: '#app12',
+        data: {
+            isActive: true,
+            hasError: false,
+            classObject: {
+                active: true,
+                'text-danger': false,
+            },
+            activeClass: 'active', // 此时active和text-danger必须用引号引起来
+            errorClass: 'text-danger', // 此时active和text-danger必须用引号引起来
+            activeColor: 'green',
+            fontSize: 24,
+            styleObject: {
+                color: 'red',
+                fontSize: '24px',
+            },
+            overridingStyle: {
+                'font-weight': 'bold',
+                'background': 'yellow',
+                'width': '400px',
+                'height': '80px',
+            }
+        },
+        computed: {
+            classComputedObject: function () {
+                return {
+                    active: this.isActive && (!this.hasError),
+                    'text-danger': this.isActive || this.hasError,
+
+                }
+            }
+        }
+    });
+
+    var app13 = new Vue({
+        el: '#app13',
+        data: {
+            loginType: 'username',
+            show: false,
+        },
+        methods: {
+            toggleLoginType: function () {
+                return this.loginType = (this.loginType === 'username' ? 'email' : 'username')
+            },
+            showcontent: function () {
+                console.log(this.show);
+                return this.show = !this.show
+            }
+        }
+    });
+
+    var app14 = new Vue({
+        el: '#app14',
+        data: {
+            numbers: [1, 2, 3, 4, 5, 6, 7, 8]
+        },
+        computed: {
+            evenNumbers: function () {
+                return this.numbers.filter(function (number) {
+                    return number % 2 === 0
+                })
+            }
+        }
+    });
+
+    // 注册todo-item组件
+    Vue.component('todo-item',{
+        // $emit('remove')表示触发当前实例上的remove事件
+        template:'<li>{{ title }} <button v-on:click="$emit(\'remove\')">Remove</button></li>',
+        props: ['title'],
+    });
+
+    var app15 = new Vue({
+        el: '#app15',
+        data: {
+            newTodoText: '', // 初始待办事项的内容
+            todos: [
+                {
+                    id: 1,
+                    title: 'do the dishes',
+                },
+                {
+                    id: 2,
+                    title: 'Take out the trash',
+                },
+                {
+                    id: 3,
+                    title: 'Mom the lawn',
+                }
+
+            ],
+            nextTodoId: 4
+        },
+        methods: {
+            addNewTodo: function () {
+                // 向todos列表中压入数据
+                this.todos.push(
+                    {
+                        // 将this.nextTodoId的值传递给id,并将this.nextTodoId自增1
+                        id: this.nextTodoId++,
+                        title: this.newTodoText,
+                    }
+                );
+                this.newTodoText = '' // 清空输入框中用户输入的内容
+            }
+        }
+    })
+</script>
+</body>
+</html>
