@@ -1,0 +1,296 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>Vue组件基础</title>
+    <script src="./js/vue.js"></script>
+</head>
+<body>
+<div>
+    <div id="app19">
+        <h3>app19 组件的使用</h3>
+        <p>组件是可复用的Vue实例，且带有一个名字，且需要使用new Vue创建Vue根实例后，组件才能使用</p>
+        <p>可以把组件当作自定义元素来使用</p>
+        <p>Vue组件可以与new Vue接收除根实例特有选项el以外的选项，如data/computed/watch/methods以及生命周期钩子等</p>
+        <p>Vue组件中的data不是对象，必须是一个函数，因此每个实例可以维护一份被返回对象的独立的拷贝</p>
+        <span>在Vue组件注册之前的Vue根实例不能使用该组件</span>
+        <!-- <button-count></button-count>  由于app19 Vue根实例是在button-count组件注册前定义的，因此在app19中不能使用button-count组件-->
+    </div>
+
+    <div id="app20">
+        <h3>app20 全局注册的组件可用在其被注册之后的任何新创建的Vue根实例</h3>
+        <button-count></button-count>  <!--每用一次组件，就会有一个新的实例被创建-->
+        <button-count></button-count>
+        <button-count></button-count>
+    </div>
+
+    <div id="app21">
+        <h3>app21 全局注册的组件可用在其被注册之后的任何新创建的Vue根实例</h3>
+        <button-count></button-count>  <!--每用一次组件，就会有一个新的实例被创建-->
+        <button-count></button-count>
+        <button-count></button-count>
+    </div>
+
+    <div id="app22">
+        <h3>app22 通过props向组件传递参数数据</h3>
+        <p>Prop是你可以在组件上注册的一些自定义特性</p>
+        <p>当一个值传递给一个prop特性的时候，它就变成了那个组件实例的一个属性</p>
+        <p>使用props选项将其包含在该组件可接受的prop列表中</p>
+        <span>使用博客组件blog-post</span>
+        <!--组件prop被注册后，可以像这样把数据作为一个自定义特性传递给组件-->
+        <blog-post title="Vue组件基础"></blog-post>
+        <blog-post title="Vue组件的复用"></blog-post>
+        <blog-post title="Vue组件的参数传递"></blog-post>
+
+        <!--也可以通过根实例的data对象传递数据,将data中的posts数组中的数据用组件渲染-->
+        <!--使用v-bind指令来动态传递prop的值-->
+        <blog-post
+                v-for="post in posts"
+                v-bind:key="post.id"
+                v-bind:title="post.title">
+        </blog-post>
+    </div>
+
+    <div id="app23">
+        <h3>app23 组件template模板中只能有单个根元素</h3>
+        <span style="color:red">Vue组件基础 content</span>
+        <blog-post-with-content
+                v-for="post in posts"
+                v-bind:key="post.id"
+                v-bind:title="post.title"
+                v-bind:content="post.content"></blog-post-with-content>
+
+        <!--当组件变得越来越复杂时，为每个相关的信息定义一个prop会变得很麻烦。-->
+        <!--比如我们的博客还有发布日期、作者信息、评论等，这时上面的blog-post的使用将会变得更加麻烦-->
+    </div>
+
+    <!--对blog-post-with-content组件进行重构，创建新的new-blog-post组件-->
+    <div id="app24">
+        <h3>app24 组件重构的使用</h3>
+        <!--此处必须使用b-bind:post="postitem"将文件postitem绑定到组件中的post参数上-->
+        <new-blog-post
+                v-for="postitem in posts"
+                v-bind:post="postitem"
+                v-bind:key="postitem.id"
+        ></new-blog-post>
+        <!--此时，不论何时为post添加新的属性，它都会自动地在new-blog-post内可用-->
+    </div>
+
+    <div id="app25">
+        <h3>app25 监听子组件的事件</h3>
+        <div :style="{ fontSize: postFontSize + 'px'}">
+            <!--此处必须使用b-bind:post="postitem"将文件postitem绑定到组件中的post参数上-->
+            <new-blog-post-link
+                    v-for="postitem in posts"
+                    v-bind:post="postitem"
+                    v-bind:key="postitem.id"
+                    v-on:enlarge-text="postFontSize += 0.5"
+                    v-on:lessen-text="postFontSize -= $event"
+                    v-on:enlarge-text-method="enlargeTextMethod"
+            ></new-blog-post-link>
+            <!--此时，不论何时为post添加新的属性，它都会自动地在new-blog-post内可用-->
+            <!--v-on:enlarge-text或v-on:lessen-text监听器会监听button按钮触发的事件，并更新postFontSize的值。-->
+            <!--v-on:lessen-text中使用$event监听每次减少的字号大小-->
+
+            <!--自定义事件enlarge-text-method触发局部方法enlargeTextMethod-->
+        </div>
+    </div>
+
+    <div id="app26">
+        <h3>app26 在组件上使用v-model</h3>
+        <custom-input v-model="searchText"></custom-input>
+        {{ searchText }}
+    </div>
+<br>
+<br>
+<br>
+<br>
+</div>
+
+<script>
+    var app19 = new Vue({
+        el: '#app19',
+    });
+
+    // 全局注册一个组件，定义一个button-count组件
+    Vue.component('button-count', {
+        data: function () {
+            return {
+                count: 0
+            }
+        },
+        template: '<button @click="count++">You clicked me {{ count }} times</button>'
+    });
+
+    var app20 = new Vue({
+        el: '#app20',
+    });
+
+    var app21 = new Vue({
+        el: '#app21',
+    });
+
+    // 注册blog-post组件
+    // 组件模板中只能有一个根元素
+    // 如果像这样指定template: {{ title }} <div v-html="content"></div>
+    // 则会提示以下错误：Component template should contain exactly one root element
+    Vue.component('blog-post', {
+        props: ['title'],  //  博客标题
+        template: '<h4 style="color: blue">&nbsp;&nbsp;{{ title }}</h4></div>'
+    });
+
+    var app22 = new Vue({
+        el: '#app22',
+        data: {
+            posts: [
+                {id: 1, title: 'Vue组件基础 in data'},
+                {id: 2, title: 'Vue组件的复用 in data'},
+                {id: 3, title: 'Vue组件的参数传递 in data'},
+            ]
+        }
+    });
+
+    // 注册一个带文章正文content的组件
+    Vue.component('blog-post-with-content', {
+        props: ['title', 'content'], // 传递参数 博客标题和正文
+        // 在v-html中可以使用html元素
+        template: '<div><h4>标题：{{ title }}</h4>正文：<div v-html="content"></div></div>'
+    });
+
+    var app23 = new Vue({
+        el: '#app23',
+        data: {
+            posts: [
+                {id: 1, title: 'Vue组件基础 in data', content: '<span style="color:red">Vue组件基础 content</span>'},
+                {id: 2, title: 'Vue组件的复用 in data', content: 'Vue组件的复用 content'},
+                {id: 3, title: 'Vue组件的参数传递 in data', content: 'Vue组件的参数传递 content'},
+            ]
+        }
+    });
+
+    Vue.component('new-blog-post', {
+        props: ['post'],
+        template: '<div><h4>标题：{{ post.title }}</h4>作者：{{ post.author }}&nbsp;&nbsp;' +
+            '<br>发表时间: {{ post.publishedTime }} <br>正文：<div v-html="post.content"></div></div>'
+    });
+
+    var app24 = new Vue({
+        el: '#app24',
+        data: {
+            posts: [
+                {
+                    id: 1,
+                    title: 'Vue组件基础 in data',
+                    author: '尤雨溪',
+                    publishedTime: '2019年5月17日13:03:36',
+                    content: '<span style="color:red">Vue组件基础 content</span>',
+                },
+                {
+                    id: 2,
+                    title: 'Vue组件的复用 in data',
+                    author: '尤雨溪',
+                    publishedTime: '2019年5月12日13:03:36',
+                    content: '<span style="color:green">Vue组件的复用 content',
+                },
+                {
+                    id: 3,
+                    title: 'Vue组件的参数传递 in data',
+                    author: '尤雨溪',
+                    publishedTime: '2019年4月17日13:03:36',
+                    content: 'Vue组件的参数传递 content',
+                },
+            ]
+        }
+    });
+
+    Vue.component('new-blog-post-link', {
+        props: ['post'],
+        // 点击button按钮时，需要告诉父级组件放大或缩小博客文章的文本
+        // 通过$emit方法并传入事件名称enlarge-text或lessen-text，点击时就会触发事件
+        // $emit是触发当前实例上的事件,可以提供第二个参数，指定要减少多大的值，如:
+        // $emit('lessen-text', 1)中每次字号减少1px,在上面的v-on:lessen-text使用$event监听这个参数值
+        template:
+            '<div><h4>标题：{{ post.title }}</h4>作者：{{ post.author }}&nbsp;&nbsp;' +
+            '<br>发表时间: {{ post.publishedTime }} ' +
+            '<button @click="$emit(\'enlarge-text\')">增大字号0.5px</button>' +
+            '<button @click="$emit(\'lessen-text\', 1)">减小字号1px</button>' +
+            '<button @click="$emit(\'enlarge-text-method\', 2)">通过方法增大字号2px</button>' +
+            '<button @click="enlargeTexthandle(4)">通过组件中的方法增大字号4px</button>' +
+            '<br>正文：<div v-html="post.content"></div></div>',
+
+        // 此处定义的enlargeTexthandle方法只用于上面的<button @click="enlargeTexthandle(4)">触发点击事件中
+        // 如果不使用组件中的方法，可以去掉下面的方法
+        methods: {
+            enlargeTexthandle: function (enlarge) {
+                // 点击事件触发后，触发自定义事件enlarge-text-method
+                this.$emit('enlarge-text-method', enlarge)
+            }
+        }
+    });
+
+    var app25 = new Vue({
+        el: '#app25',
+        data: {
+            posts: [
+                {
+                    id: 1,
+                    title: 'Vue组件基础 in data',
+                    author: '尤雨溪',
+                    publishedTime: '2019年5月17日13:03:36',
+                    content: '<span style="color:red">Vue组件基础 content</span>',
+                },
+                {
+                    id: 2,
+                    title: 'Vue组件的复用 in data',
+                    author: '尤雨溪',
+                    publishedTime: '2019年5月12日13:03:36',
+                    content: '<span style="color:green">Vue组件的复用 content',
+                },
+                {
+                    id: 3,
+                    title: 'Vue组件的参数传递 in data',
+                    author: '尤雨溪',
+                    publishedTime: '2019年4月17日13:03:36',
+                    content: 'Vue组件的参数传递 content',
+                },
+            ],
+            postFontSize: 12,
+        },
+
+        // 此处的enlargeTextMethod方法用于v-on:enlarge-text-method="enlargeTextMethod"监听器中，
+        // 当点击<button @click="$emit('enlarge-text-method', 2)">通过方法增大字号2px</button>定义的按钮时，
+        // 就会触发enlarge-text-method监听器，监听器就会执行enlargeTextMethod方法
+
+        // 定义局部方法，用于增加字号
+        methods: {
+            enlargeTextMethod: function (enlargeAmount) {
+                this.postFontSize += enlargeAmount
+            }
+        }
+    });
+
+    // 注册自定义custom-input输入框组件
+    Vue.component('custom-input', {
+        props: ['inputvalue'],
+        // 将组件内的input输入框的值绑定到inputvalue这个prop值上，
+        // 在组件内的input事件被触发时，将新值通过自定义input事件抛出
+        template:
+            '<input v-bind:value="inputvalue" v-on:input="$emit(\'input\', $event.target.value)" v-on:change="printmessage">',
+        methods: {
+            printmessage: function () {
+                alert('you changed the input value.')
+            }
+        }
+    });
+
+    var app26 = new Vue({
+        el: '#app26',
+        data: {
+            searchText: 'init search text',
+            inputvalue: 'init input value',
+        }
+    })
+
+</script>
+</body>
+</html>

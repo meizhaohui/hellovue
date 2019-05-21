@@ -1,0 +1,283 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>slot插槽的使用</title>
+    <script src="./js/vue.js"></script>
+</head>
+<body>
+<div>
+    <div id="app27">
+        <h3>app27 插槽的使用</h3>
+        <p>给插槽提供内容</p>
+        <useslot>Save</useslot> <!--因提供插槽的内容,使用Save进行渲染-->
+        <p>后备插槽</p>
+        <useslot></useslot>  <!--因没有提供插槽的内容,使用默认值Submit进行渲染-->
+        <!-- 插槽一样可以访问相同的实例属性，但在插槽内部不能访问<useslot>标签的author属性-->
+        <p>插槽内部不能访问父级的author属性</p>
+        <useslot author="Evan You">你使用的语言：{{ lang.name }}</useslot>
+    </div>
+
+    <div id="app28">
+        <h3>app28 具名插槽</h3>
+        <p>在向具名插槽提供内容的时候，可以在一个<i>&lt;template&gt;</i>元素上使用v-slot指令，并以v-slot的参数的形式提供其名称</p>
+        <p>任何没有包裹在带有v-slot的template元素中的内容被视为默认插槽的内容</p>
+        <nameslot>
+            <template v-slot:header><h1>标题</h1></template>
+            <p>not in v-slot</p>  <!-- 如果不指定下一行的v-slot:default的话，此处将作为默认插槽的内容。-->
+            <!-- 如果指定下面的v-slot:default的话，上面的not in v-slot将会被忽略，因为没有包含在v-slot中-->
+            <!--<template v-slot:default><span style="color:red;">正文</span></template>-->
+            <template v-slot:footer></template>
+        </nameslot>
+    </div>
+
+    <div id="app29">
+        <h3>app29 插槽作用域</h3>
+        FirstName: {{ user.firstName }}<br>
+        lastName: {{ user.lastName }}<br>
+        <!--获取根元素app29的user对象-->
+        <current-user>根元素的user对象：{{ user.firstName }} {{ user.lastName }}</current-user>
+        <br>
+        <p>由于没有指定slot的内容，使用默认的插槽内容，即解析组件中的user.lastName的值You_in</p>
+        <current-user></current-user>
+        <br>
+        <!--将包含所有插槽prop的对象命名为slotProps-->
+        <p>读取组件内的user对象，并显示在插槽内容中</p>
+        <current-user>
+            <template v-slot:default="slotProps">组件内的用户firstName:{{ slotProps.user.firstName }}</template>
+        </current-user>
+        <br>
+        <current-user>
+            <template v-slot:default="slotProps">组件内的用户lastName:{{ slotProps.user.lastName }}</template>
+        </current-user>
+        <br>
+        <p>当组件模板template定义时只有默认插槽时，组件的标签才可以当作插槽的模板来使用，可以将v-slot直接用在组件上，如下所示</p>
+        <current-user v-slot:default="slotProps">组件内的用户lastName:{{ slotProps.user.lastName }}</current-user>
+        <br>
+        <p>独占默认插槽的简写,v-slot不带参数时被假定对应default默认插槽</p>
+        <current-user v-slot="slotProps">组件内的用户lastName:{{ slotProps.user.lastName }}</current-user>
+        <br>
+    </div>
+
+    <div id="app30">
+        <h3 style="color: red;">app30 默认插槽的缩写语法不能和具名插槽混用，因为它会导致作用域不明确</h3>
+        <h3 style="color: green;">只要出现多个插槽，请始终为所有的插槽使用完整的基于&lt;template&gt;的语法,就像下面的语法一样</h3>
+        <current-user-with-mult-slot-name>
+            <!--使用组件内的user对象-->
+            <template v-slot:main="slotProps">{{ slotProps.user.firstName }}</template>
+            <template v-slot:footer></template> <!--使用默认插槽内容-->
+        </current-user-with-mult-slot-name>
+        <!--下面这种写法错误的，会提示错误信息：-->
+        <!--“To avoid scope ambiguity, the default slot should also use <template> syntax when there are other named slots.”-->
+        <!--即为了避免范围歧义，当存在其他命名插槽时，默认插槽也应用使用<template>语法-->
+
+        <!-- 错误开始
+        <current-user-with-mult-slot-name v-slot:main="slotProps">{{ slotProps.user.firstName }}
+            <template v-slot:footer></template>
+        </current-user-with-mult-slot-name>
+        错误结尾 -->
+    </div>
+
+    <div id="app31">
+        <h3 style="color: red;">app31 解构插槽Prop (非常重要！！！！！！)</h3>
+        <p>作用域插槽的内部工作原理是将插槽内容包括在一个传入单个参数的函数里，如function(slotProps){插槽内容}</p>
+        <p>这意味着v-slot的值实际上可以是任何能够作为函数定义中的参数的JavaScript表达式，可以使用ES2015解构来传入具体的插槽prop</p>
+        <p>这样可以使模板更简洁，尤其在该插槽提供了多个prop的时候</p>
+        <current-user-with-destructuring_assignment>
+            <!--v-slot:main="{ userin, langin }"与组件模板中定义的插槽特性userin和langin-->
+            <!--<slot name="main" v-bind:userin="userdata" v-bind:langin="lang">对应，这就是解构插槽Prop-->
+            <template v-slot:main="{ userin, langin }">
+                编程语言：{{ langin.name }} <br>
+                版本：{{ langin.version }} <br>
+                FirstName: {{ userin.firstName }}<br>
+                lastName: {{ userin.lastName }}<br>
+            </template>
+        </current-user-with-destructuring_assignment>
+        <!--上面的访问解构插槽Prop后的属性值，直接通过{{ langin.name }} 或 {{ userin.firstName }} 就可以获取到相应的属性值-->
+
+        <h4>插槽prop重命名的使用</h4>
+        <current-user-with-destructuring_assignment>
+            <!--v-slot:main="{ userin, langin }"与组件模板中定义的插槽特性userin和langin-->
+            <!--<slot name="main" v-bind:userin="userdata" v-bind:langin="lang">对应，这就是解构插槽Prop-->
+
+            <template v-slot:main="{ userin:person, langin:programming_language }">
+                <p>
+                    对prop进行重命名，将userin特性重命名为person,langin特性重命名为programming_language,
+                    此时userin和langin不可用，如果像上面那样lastName: \{\{userin.lastName \}\}，则会提示userin未定义
+                </p>
+                编程语言：{{ programming_language.name }} <br>
+                版本：{{ programming_language.version }} <br>
+                FirstName: {{ person.firstName }}<br>
+                lastName: {{ person.lastName }}<br>
+            </template>
+        </current-user-with-destructuring_assignment>
+        <!--上面的访问解构插槽Prop后的属性值，不能通过{{ langin.name }} 或 {{ userin.firstName }} 获取到相应的属性值
+            必须使用重命名后的prop进行属性的获取，如{{ programming_language.name }}或{{ person.firstName }}
+        -->
+
+        <h4>插槽prop后备内容，当插槽prop是undefined的时候可以使用</h4>
+        <current-user-with-destructuring_assignment>
+            <p>插槽userin_invalid和langin_invalid都是未定义undefined的</p>
+            <template v-slot:main="{ userin_invalid:person={firstName: 'Guest'}, langin_invalid={name: 'Python'} }">
+                <p>
+                    对prop进行重命名，将userin_invalid特性（这个特性不存在）重命名为person并指定默认值，
+                    即如果用户未定义userin_invalid特性，则会使用firstName:'Guest'这个属性，
+                    langin_invalid特性（这个特性不存在）给定默认值为name:'Python'.
+                </p>
+                编程语言：{{ langin_invalid.name }} <br>
+                FirstName: {{ person.firstName }}<br>
+            </template>
+        </current-user-with-destructuring_assignment>
+
+        <h4>具名插槽v-slot的缩写，v-slot:main可以缩写为#main</h4>
+        <current-user-with-destructuring_assignment>
+
+            <template #main="{ userin_invalid:person={firstName: 'Guest'}, langin_invalid={name: 'Python'} }">
+                <p>使用缩写时，请始终指定明确的插槽名称，如#main,#footer,#default,不能直接使用#</p>
+                编程语言：{{ langin_invalid.name }} <br>
+                FirstName: {{ person.firstName }}<br>
+            </template>
+            <template #footer>Copyright &copy; 2001-2019. Python Software Foundation</template>
+        </current-user-with-destructuring_assignment>
+
+    </div>
+
+    <br><br><br><br>
+
+</div>
+<script>
+    Vue.component('useslot', {
+        // 如果在template中没有使用插槽<slot></slot>,则该组件起始标签和结束标签之间的任何内容都会被抛弃
+        // 在插槽<slot></slot>中指定默认值Submit(即使用插槽的后备内容)，如果组件引用时没有提供内容时，则会使用默认值进行渲染
+        template: "<button type='submit'><slot>Submit</slot></button>"
+    });
+
+    var app27 = new Vue({
+        el: '#app27',
+        data: {
+            lang: {
+                'name': 'Vue.js',
+            }
+        }
+    });
+
+    Vue.component('nameslot', {
+        // 默认slot未指定名称时，其名称是default
+        // 下面的main中的具名插槽可以取名为slot name="main"，这样更加明确。
+        template:
+            '<div>' +
+            '<header><slot name="header"></slot></header>' +
+            '<main><slot></slot></main>' +
+            '<footer><slot name="footer">Copyright © 2014-2019 Evan You</slot></footer>' +
+            '</div>'
+    });
+
+    var app28 = new Vue({
+        el: '#app28',
+    });
+
+    Vue.component('current-user', {
+        template:
+            '<span style="color:red;">' +
+            '<slot v-bind:user="user">{{ user.lastName }}</slot>' +
+            '</span>',
+        // 为了让current-user组件的对象user能够在父级插槽<slot>内容中可用，将user作为一个<slot>元素的特性绑定上去，
+        // 即<slot v-bind:user="user">进行绑定，绑定在<slot>元素上的特性被称为插槽prop。
+        // 在父级作用域中，可以使用v-slot带一值来定义挺插槽prop的名字
+        data: function () {
+            return {
+                user: {
+                    'lastName': 'You_in',
+                    'firstName': 'Evan_in',
+                }
+            }
+        }
+    });
+
+    var app29 = new Vue({
+        el: '#app29',
+        data: {
+            user: {
+                'lastName': 'You',
+                'firstName': 'Evan',
+            }
+        }
+    });
+
+    Vue.component('current-user-with-mult-slot-name', {
+        // 指定两个插槽，main插槽和footer插槽
+        template:
+            '<div>' +
+            '<main>' +
+            '<span style="color:red;">' +
+            '<slot name="main" v-bind:user="user">{{ user.lastName }}</slot>' +
+            '</span>' +
+            '</main>' +
+            '<footer><slot name="footer">Copyright © 2014-2019 Evan You</slot></footer>' +
+            '</div>',
+        // 为了让current-user-with-mult-slot-name组件的对象user能够在父级插槽<slot>内容中可用，将user作为一个<slot>元素的特性绑定上去，
+        // 即<slot v-bind:user="user">进行绑定，绑定在<slot>元素上的特性被称为插槽prop。
+        // 在父级作用域中，可以使用v-slot带一值来定义挺插槽prop的名字
+        data: function () {
+            return {
+                user: {
+                    'lastName': 'You_in',
+                    'firstName': 'Evan_in',
+                }
+            }
+        }
+    });
+
+    var app30 = new Vue({
+        el: '#app30',
+        data: {
+            user: {
+                'lastName': 'You',
+                'firstName': 'Evan',
+            }
+        }
+    });
+
+    Vue.component('current-user-with-destructuring_assignment', {
+        // 指定两个插槽，main插槽和footer插槽
+        template:
+            '<div>' +
+            '<main>' +
+            '<span style="color:red;">' +
+            '<slot name="main" v-bind:userin="userdata" v-bind:langin="lang">{{ userdata.lastName }}</slot>' +
+            '</span>' +
+            '</main>' +
+            '<footer><slot name="footer">Copyright © 2014-2019 Evan You</slot></footer>' +
+            '</div>',
+        // 为了让current-user-with-destructuring_assignment组件的对象userdata能够在父级插槽<slot>内容中可用，将userdata作为一个<slot>元素的特性绑定上去，
+        // 即<slot v-bind:userin="userdata">进行绑定，绑定在<slot>元素上的特性被称为插槽prop。
+        // 在父级作用域中，可以使用v-slot带一值来定义挺插槽prop的名字
+        data: function () {
+            return {
+                // 此处的userdata、lang与slot中绑定属性时双引号中的值对应，
+                // 如上面的v-bind:userin="userdata"表示将userdata绑定到main插槽的userin特性上
+                userdata: {
+                    'lastName': 'You_in',
+                    'firstName': 'Evan_in',
+                },
+                lang: {
+                    'name': 'Vue.js',
+                    'version': 'v2.6.10',
+                }
+            }
+        }
+    });
+
+    var app31 = new Vue({
+        el: '#app31',
+        data: {
+            user: {
+                'lastName': 'You',
+                'firstName': 'Evan',
+            }
+        }
+    });
+
+</script>
+</body>
+</html>

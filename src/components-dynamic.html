@@ -1,0 +1,190 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>动态组件</title>
+    <script src="./js/vue.js"></script>
+</head>
+<body>
+<div>
+    <div id="app32">
+        <h3>app32 动态组件</h3>
+        <p class="redshow">不进行缓存，每次在Posts和Archive标签间切换时，Posts标签中选择的文章不会被缓存</p>
+        <button
+                v-for="tab in tabs"
+                v-bind:key="tab"
+                v-bind:class="['dynamic-component-demo-tab-button', { 'dynamic-component-demo-active': currentTab === tab }]"
+                v-on:click="currentTab=tab">
+            {{ tab }}
+        </button>
+        <component v-bind:is="currentTabComponent" class="dynamic-component-demo-tab"></component>
+        <p class="redshow">以上使用v-bind:is特性在多标签界面切换不同的组件</p>
+    </div>
+
+    <div id="app33">
+        <h3>app33 动态组件</h3>
+        <p class="redshow">进行缓存，每次在Posts和Archive标签间切换时，Posts标签中选择的文章会被缓存</p>
+        <p class="redshow">使用keep-alive元素将动态组件包裹起来</p>
+        <button
+                v-for="tab in tabs"
+                v-bind:key="tab"
+                v-bind:class="['dynamic-component-demo-tab-button', { 'dynamic-component-demo-active': currentTab === tab }]"
+                v-on:click="currentTab=tab">
+            {{ tab }}
+        </button>
+
+        <keep-alive>
+            <component v-bind:is="currentTabComponent" class="dynamic-component-demo-tab"></component>
+        </keep-alive>
+
+    </div>
+</div>
+
+<script>
+    Vue.component('tab-posts', {
+        data: function () {
+            return {
+                posts: [
+                    {
+                        id: 1,
+                        title: 'Vue介绍',
+                        content: 'Vue (读音 /vjuː/，类似于 view) 是一套用于构建用户界面的' +
+                            '渐进式框架。与其它大型框架不同的是，Vue 被设计为可以自底向上逐层' +
+                            '应用。Vue 的核心库只关注视图层，不仅易于上手，还便于与第三方库或既' +
+                            '有项目整合。另一方面，当与现代化的工具链以及各种支持类库结合使用' +
+                            '时，Vue 也完全能够为复杂的单页应用提供驱动。',
+                    },
+                    {
+                        id: 2,
+                        title: 'Vue安装',
+                        content: 'Vue 不支持 IE8 及以下版本，因为 Vue 使用了 IE8 无法模拟' +
+                            '的 ECMAScript 5 特性。但它支持所有兼容 ECMAScript 5 的浏览器。',
+                    },
+                    {
+                        id: 3,
+                        title: '动态组件',
+                        content: '<h3>在动态组件上使用 keep-alive</h3>当在这些组件之间切换的时候，' +
+                            '你有时会想保持这些组件的状态，以避免反复重渲染导致的性能问题。例如我们来' +
+                            '展开说一说这个多标签界面',
+                    },
+                ],
+                selectedPost: null,
+            }
+        },
+        template: '' +
+            '<div class="dynamic-component-demo-posts-tab">' +
+            '<ul class="dynamic-component-demo-posts-sidebar">' +
+            '<li ' +
+            'v-for="post in posts" ' +
+            'v-bind:key="post.id" ' +
+            'v-bind:class="{\'dynamic-component-demo-active\': post === selectedPost}" ' +
+            'v-on:click="selectedPost =post">' +
+            '{{ post.title }}</li>' +
+            '</ul>' +
+            '<div class="dynamic-component-demo-post-container">' +
+            '<div v-if="selectedPost" class="dynamic-component-demo-post">' +
+            '<h3>{{ selectedPost.title }}</h3>' +
+            '<div v-html="selectedPost.content"></div>' +
+            '</div>' +
+            '<strong v-else>Click on a blog title to the left to view it.</strong></div>' +
+            '</div>'
+    });
+
+    Vue.component('tab-archive', {
+        template: '<div v-class="">Archive component</div>'
+    });
+
+    var app32 = new Vue({
+        el: '#app32',
+        data: {
+            currentTab: 'Posts',
+            tabs: ['Posts', 'Archive'],
+        },
+        computed: {
+            currentTabComponent: function () {
+                return 'tab-' + this.currentTab.toLowerCase();
+            }
+        }
+    });
+
+     var app33 = new Vue({
+        el: '#app33',
+        data: {
+            currentTab: 'Posts',
+            tabs: ['Posts', 'Archive'],
+        },
+        computed: {
+            currentTabComponent: function () {
+                return 'tab-' + this.currentTab.toLowerCase();
+            }
+        }
+    });
+</script>
+
+<style>
+    .redshow {
+        color:red;
+    }
+
+    .dynamic-component-demo-tab-button {
+        padding: 6px 10px;
+        border-top-left-radius: 3px;
+        border-top-right-radius: 3px;
+        border: 1px solid #ccc;
+        cursor: pointer;
+        background: #f0f0f0;
+        margin-bottom: -1px;
+        margin-right: -1px;
+    }
+
+    .dynamic-component-demo-tab-button:hover {
+        background: #e0e0e0;
+    }
+
+    .dynamic-component-demo-tab-button.dynamic-component-demo-active {
+        background: #e0e0e0;
+    }
+
+    .dynamic-component-demo-tab {
+        border: 1px solid #ccc;
+        padding: 10px;
+    }
+
+    .dynamic-component-demo-posts-tab {
+        display: flex;
+    }
+
+    .dynamic-component-demo-posts-sidebar {
+        max-width: 40vw;
+        margin: 0 !important;
+        padding: 0 10px 0 0 !important;
+        list-style-type: none;
+        border-right: 1px solid #ccc;
+    }
+
+    .dynamic-component-demo-posts-sidebar li {
+        white-space: nowrap;
+        text-overflow: ellipsis;
+        overflow: hidden;
+        cursor: pointer;
+    }
+
+    .dynamic-component-demo-posts-sidebar li:hover {
+        background: #eee;
+    }
+
+    .dynamic-component-demo-posts-sidebar li.dynamic-component-demo-active {
+        background: lightblue;
+    }
+
+    .dynamic-component-demo-post-container {
+        padding-left: 10px;
+    }
+
+    .dynamic-component-demo-post > :first-child {
+        margin-top: 0 !important;
+        padding-top: 0 !important;
+    }
+</style>
+</body>
+</html>

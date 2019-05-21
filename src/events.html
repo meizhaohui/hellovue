@@ -1,0 +1,92 @@
+<html>
+<!--事件处理-->
+<head>
+    <meta charset="utf-8">
+    <script src="./js/vue.js"></script>
+    <!--AJAX异步库 lodash可以减少Vue Watch鉴定axios后台请求的压力-->
+    <script src="./js/axios.js"></script>
+    <script src="./js/lodash.js"></script>
+</head>
+<body>
+
+<div>
+    <!--事件监听，事件处理方法-->
+    <div id="app16">
+        <h3>app16 使用v-on指令进行DOM事件监听</h3>
+        <!--直接将JavaScript代码写在v-on指令中-->
+        <button v-on:click="counter++">Click me</button>
+        <p>The button above has been clicked {{ counter }} times.</p>
+        <!--点击按钮时调用greet方法-->
+        <button @click="greet">Greet</button>
+        <!--调用方法时指定参数-->
+        <button @click="say('hi')">Say hi</button>
+        <button @click="say('what')">Say what</button>
+    </div>
+
+    <!--事件修饰符的使用-->
+    <div id="app17">
+        <h3>app17 事件修饰符</h3>
+        <div @click="doOut">
+            <!--因为没有阻止事件冒泡，当单击按钮时，doOut函数也会被执行，因此会有两次弹窗-->
+            <button @click="doThis">不用事件修饰符，我不能阻止单击事件继续传播</button>
+            <!--@click.stop会阻止事件冒泡，也就是只执行当前事件，不会执行其他事件-->
+            <button @click.stop="doThis">使用stop修饰符，我能阻止单击事件继续传播</button>
+            <button @click.once="doThis">使用once修饰符，我调用的函数只能执行一次，但不能阻止单击事件继续传播，
+                后继再点击只会执行传播后的事件
+            </button>
+        </div>
+
+        <!--事件捕获，在父子事件中，无论先点击那个，先执行有@click.capture捕获的事件，再执行其他事件-->
+        <div @click.capture="doOut">
+            <!--因为没有阻止事件冒泡，当单击按钮时，doOut函数也会被执行，因此会有两次弹窗-->
+            <button @click="doThis">不用事件修饰符，我不能阻止单击事件继续传播</button>
+            <!--@click.stop会阻止事件冒泡，也就是只执行当前事件，不会执行其他事件-->
+            <button @click.stop="doThis">使用stop修饰符，我能阻止单击事件继续传播</button>
+            <button @click.once="doThis">使用once修饰符，我调用的函数只能执行一次，但不能阻止单击事件继续传播，
+                后继再点击只会执行传播后的事件
+            </button>
+        </div>
+
+    </div>
+</div>
+
+<script>
+    var app16 = new Vue({
+        el: '#app16',
+        data: {
+            counter: 0,
+            name: 'Vue.js',
+        },
+        // 在methods对象中定义方法
+        methods: {
+            greet: function (event) {
+                // this是当前Vue实例，也就是app16
+                alert('Hello' + this.name + '!');
+                // event是原生的DOM事件
+                if (event) {
+                    alert(event.target.tagName);
+                }
+            },
+            say: function (message) {
+                alert(message);
+            }
+        }
+    });
+
+    var app17 = new Vue({
+        el: '#app17',
+        methods: {
+            doThis: function () {
+                alert('你点击了button按钮');
+            },
+            doOut: function () {
+                alert('单击事件被传播了，我也被执行了!')
+            },
+            doinput: function () {
+                alert('开始在Input中输入')
+            }
+        }
+    });
+</script>
+</body>
+</html>
