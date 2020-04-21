@@ -1,4 +1,6 @@
 # hellovue
+Archived. Please see the [https://github.com/meizhaohui/vueblog](https://github.com/meizhaohui/vueblog)
+
 Recording the process of learning Vue.js
 
 Check the HTML or VUE file for details.
